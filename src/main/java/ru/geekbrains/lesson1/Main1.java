@@ -56,7 +56,6 @@ class Box<T extends Fruit> {
         fruits.add(fruit);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public float getWeight() {
         if (fruits.size() == 0) {
             return 0;
@@ -68,9 +67,8 @@ class Box<T extends Fruit> {
         return weight;
     }
 
-    public void compare(final Box<T> b) {
-        this.getWeight();
-        b.getWeight();
+    public boolean compare(final Box<T> b) {
+        return this.getWeight() == b.getWeight();
     }
 
     public void layOut(final T fruit) {
