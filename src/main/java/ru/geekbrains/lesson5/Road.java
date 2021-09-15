@@ -6,11 +6,11 @@ public class Road extends Stage{
         this.description = "Дорога " + length + " метров";
     }
     @Override
-    public void go(Car c) {
+    public void go(Car car) {
         try {
-            System.out.println(c.getName() + " начал этап: " + description);
-            Thread.sleep(length / c.getSpeed() * 1000);
-            System.out.println(c.getName() + " закончил этап: " + description);
+            System.out.println(car.getName() + " начал этап: " + getDescription());
+            Thread.sleep(length / car.getSpeed() * 1000L);
+            System.out.println(car.getName() + " закончил этап: " + getDescription());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
