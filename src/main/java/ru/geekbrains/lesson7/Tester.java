@@ -1,33 +1,56 @@
 package ru.geekbrains.lesson7;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class Tester {
 
-    @BeforeSuite
-    public void beforeTest(){
-        System.out.println("Before test");
-    }
+    public static void start(Class<?> clazz) throws InvocationTargetException, IllegalAccessException {
+        Method beforeMethod = null;
+        Method afterMethod = null;
+        ArrayList<Method> testMethods = new ArrayList<>();
 
-    @Test (5)
-    public void test5(){
-        System.out.println("Test 5");
-    }
+        Object instance = null;
+        try {
+            instance = clazz.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
 
-    @Test(1)
-    public void test1(){
-        System.out.println("Test 1");
-    }
+        final Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            method.setAccessible(true);
+            if (method.isAnnotationPresent(Test.class)) {
+                testMethods.add(method);
+            } else if (method.isAnnotationPresent(BeforeSuite.class)) {
+                if (beforeMethod == null) {
+                    beforeMethod = method;
+                } else {
+                    throw new RuntimeException("Должно быть не более одного метода с аннотацией @BeforeSuite");
+                }
+            }
+            if (method.isAnnotationPresent(AfterSuite.class)) {
+                if (afterMethod == null) {
+                    afterMethod = method;
+                } else {
+                    throw new RuntimeException("Должно быть не более одного метода с аннотацией @AfterSuite");
+                }
+            }
+        }
 
-    @Test(2)
-    public void test2(){
-        System.out.println("Test 2");
-    }
+        if (beforeMethod != null) {
+            beforeMethod.invoke(instance);
+        }
 
-    @Test (7)
-    @AfterSuite
-    public void test3(){
-        System.out.println("Test 3");
-    }
+        testMethods.sort(Comparator.comparingInt(o -> o.getAnnotation(Test.class).value()));
+        for (Method method : testMethods) {
+            method.invoke(instance);
+        }
 
-    @AfterSuite
-    public void afterTest() { System.out.println("After test"); }
+        if (afterMethod != null) {
+            afterMethod.invoke(instance);
+        }
+    }
 }
